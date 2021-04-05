@@ -16,3 +16,7 @@ Features supporting status:
 - [ ] TOC
 - [ ] anchors at headers
 - [ ] front-matter
+- [ ] mindmap
+- [ ] echarts
+- [ ] abc
+- [ ] graphviz
