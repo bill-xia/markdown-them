@@ -1,0 +1,38 @@
+{
+  "name": "markdown-them",
+  "version": "1.0.10",
+  "description": "Markdown-them - useful markdown parser. Based on markdown-it.",
+  "keywords": [
+    "markdown",
+    "parser",
+    "commonmark",
+    "markdown-them",
+    "markdown-it",
+    "markdown-it-plugin"
+  ],
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bill-xia/markdown-them"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "demo.js",
+    "bin/",
+    "lib/",
+    "dist/",
+    "mddocs/",
+    "htmldocs/"
+  ],
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "entities": "~2.1.0",
+    "highlight.js": "^10.7.1",
+    "katex": "^0.13.0",
+    "linkify-it": "^3.0.1",
+    "mdurl": "^1.0.1",
+    "uc.micro": "^1.0.5"
+  }
+}
