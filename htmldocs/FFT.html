@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.0/dist/katex.min.css" integrity="sha384-t5CR+zwDAROtph0PXGte6ia8heboACF9R5l/DiY+WZ3P2lxNgvJkQk5n7GPvLMYw" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/xcode.min.css">
+  </head>
+  <body>
+    <h1 id="fft">FFT</h1>
+<p>FFT可以在<span class="markdown-them-math-inline">$O(n\log n)$</span>的时间内在多项式的点值表示法和系数表示法之间相互转换，从而可以加速多项式乘法。</p>
+<!-- more -->
+<h2 id="原理">原理</h2>
+<p>多项式可以用系数来表示，也可以用点值表示法表示。</p>
+<blockquote>
+<p>一个<span class="markdown-them-math-inline">$n$</span>次多项式可以由其<span class="markdown-them-math-inline">$n+1$</span>个不同点处的值来确定。</p>
+</blockquote>
+<p>证明：设这些点为<span class="markdown-them-math-inline">$x_0,x_1,...,x_n$</span>，对应地设多项式在这些点处的值为<span class="markdown-them-math-inline">$y_0,y_1,...,y_n$</span>。由这些已知条件，尝试解出多项式的<span class="markdown-them-math-inline">$i$</span>次项系数<span class="markdown-them-math-inline">$a_i(i=0,1,...,n)$</span>，即解方程</p>
+<div class="markdown-them-math-block">$$\left(\begin{matrix}
+1 &amp; x_0 &amp; x_0^2 &amp; ... &amp; x_0^n \\
+1 &amp; x_1 &amp; x_1^2 &amp; ... &amp; x_1^n \\
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+1 &amp; x_n &amp; x_n^2 &amp; ... &amp; x_n^n\\
+\end{matrix}\right)
+
+\left(\begin{matrix}
+a_0 \\
+a_1 \\
+\vdots \\
+a \\
+\end{matrix}\right)
+=
+\left(\begin{matrix}
+y_0 \\
+y_1 \\
+\vdots \\
+y_n \\
+\end{matrix}\right)
+$$</div><p>由于左侧的系数矩阵为范德蒙德矩阵，其行列式为<span class="markdown-them-math-inline">$\prod_{i&lt;j}(x_j-x_i)$</span>，又由<span class="markdown-them-math-inline">$x_i\neq x_j(i\neq j)$</span>，其行列式不为0，从而方程有唯一解。</p>
+<p>之所以要转换，是因为在点值表达式下有些东西更好算，如多项式乘积。暴力转换需要算出左边的矩阵，并进行<span class="markdown-them-math-inline">$(n\times n)$</span>矩阵与<span class="markdown-them-math-inline">$(n\times 1)$</span>矩阵的乘积，是<span class="markdown-them-math-inline">$O(n^2)$</span>的。</p>
+<p><span class="markdown-them-math-inline">$\omega_n=e^{i\theta}=\cos{k\theta}+i\sin{k\theta},\theta=\dfrac{2\pi}{n}$</span></p>
+<p><span class="markdown-them-math-inline">$\omega_n$</span>的<span class="markdown-them-math-inline">$0,1,...,(n-1)$</span>次幂称为单位根，是方程<span class="markdown-them-math-inline">$x^n=1$</span>在复数域的全部解。它们将单位圆<span class="markdown-them-math-inline">$n$</span>等分，并且其中有一个点<span class="markdown-them-math-inline">$(\omega_n^0)$</span>是1。</p>
+<p>由于<span class="markdown-them-math-inline">$2^k$</span>次单位根的性质较好，先将<span class="markdown-them-math-inline">$n$</span>补全为<span class="markdown-them-math-inline">$2^{\lceil \log n\rceil}$</span>，再用多项式在<span class="markdown-them-math-inline">$n$</span>次单位根（及其幂次）处的值来表示<span class="markdown-them-math-inline">$(n-1)$</span>次多项式，以求快速的转换。</p>
+<p>现在要求</p>
+<div class="markdown-them-math-block">$$\begin{align*}
+y_0&amp;=a_0\omega_n^{0\cdot0}+a_1\omega_n^{0\cdot1}+a_2\omega_n^{0\cdot2}+...+a_{n-1}\omega_n^{0\cdot(n-1)}\\
+y_1&amp;=a_0\omega_n^{1\cdot0}+a_1\omega_n^{1\cdot1}+a_2\omega_n^{1\cdot2}+...+a_{n-1}\omega_n^{1\cdot(n-1)}\\
+y_2&amp;=a_0\omega_n^{2\cdot0}+a_1\omega_n^{2\cdot1}+a_2\omega_n^{2\cdot2}+...+a_{n-1}\omega_n^{2\cdot(n-1)}\\
+&amp;...\\
+y_{n-1}&amp;=a_0\omega_n^{(n-1)\cdot0}+a_1\omega_n^{(n-1)\cdot1}+a_2\omega_n^{(n-1)\cdot2}+...+a_{n-1}\omega_n^{(n-1)\cdot(n-1)}\\
+\end{align*}
+$$</div><p>分离奇数项和偶数项，以<span class="markdown-them-math-inline">$y_1$</span>为例：</p>
+<div class="markdown-them-math-block">$$\begin{align*}
+y_1&amp;=(a_0+a_2\omega_n^2+a_4\omega_n^4+...+a_{n-2}\omega_n^{n-2})+(a_1\omega_n^1+a_3\omega_n^3+...+a_{n-1}\omega_n^{n-1})\\
+&amp;=(a_0+a_2\omega_n^2+a_4\omega_n^4+...+a_{n-2}\omega_n^{n-2})+\omega_n^1(a_1\omega_n^0+a_3\omega_n^2+...+a_{n-1}\omega_n^{n-2})\\
+\end{align*}
+$$</div><p>问题变成递归的了：求<span class="markdown-them-math-inline">$a_0,a_2,...,a_{n-2}/a_1,a_3,...,a_{n-1}$</span>为系数的多项式，在<span class="markdown-them-math-inline">$n/2$</span>次单位根处的点值表示。</p>
+<p>此外，还有：</p>
+<div class="markdown-them-math-block">$$\begin{align*}
+y_{n/2+1}&amp;=(a_0\omega_n^{(n/2+1)\cdot 0}+a_2\omega_n^{(n/2+1)\cdot2}+...+a_{n-2}\omega_n^{(n/2+1)\cdot(n-2)})\\&amp;+\omega_n^{n/2+1}(a_1\omega_n^{(n/2+1)\cdot 0}+a_3\omega_n^{(n/2+1)\cdot2}+...+a_{n-1}\omega_n^{(n/2+1)\cdot(n-2)})\\
+&amp;=(a_0+a_2\omega_n^2+a_4\omega_n^4+...+a_{n-2}\omega_n^{n-2})-\omega_n^1(a_1+a_3\omega_n^2+...+a_{n-1}\omega_n^{n-1})\\
+&amp;=\overline{y_1}
+\end{align*}
+$$</div><p>同理，<span class="markdown-them-math-inline">$y_{n/2+k}=\overline{y_k}$</span>。从而，为了计算<span class="markdown-them-math-inline">$n-1$</span>次多项式在<span class="markdown-them-math-inline">$n$</span>个点处的值<span class="markdown-them-math-inline">$y_0,y_1,...,y_{n-1}$</span>，只需要计算2个<span class="markdown-them-math-inline">$n/2-1$</span>次多项式在<span class="markdown-them-math-inline">$n/2$</span>个点处的值。也就是<span class="markdown-them-math-inline">$T(n)=2T(n/2)+n,T(1)=1$</span>，解得<span class="markdown-them-math-inline">$T(n)=n(\log n+1)$</span>。</p>
+<p><span class="markdown-them-math-inline">$\sum_{i=0}^{n}a_ix^i\sum_{i=0}^{m}b_ix^i=\sum_{i=0}^{n+m}(\sum_{j=0}^ia_jb_{i-j})x^i$</span></p>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/raphael@2.3.0/raphael.min.js"></script>
+    <script src="./flowchart.js"></script>
+    <script>$('.flowchartjs').flowChart();</script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="./webfont.js"></script>
+    <script src="./snap.svg-min.js"></script>
+    <script src="./underscore-min.js"></script>
+    <script src="./sequence-diagram-min.js"></script>
+    <script>
+      var options = {theme: 'hand'};
+      $(".sequence-diagram").sequenceDiagram(options);
+    </script>
+  </body>
+</html>

@@ -20,6 +20,10 @@
 
 ###### H6
 
+## H2
+
+## h2
+
 **Bold** *Italic* <u>underline</u> ~~delete~~
 
 >   Think more, code less.

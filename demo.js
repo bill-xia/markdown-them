@@ -1,4 +1,4 @@
-var md = require('markdown-them')();
+var md = require('./lib')();
 var fs = require('fs');
 var files = fs.readdirSync('mddocs', 'utf8');
 for (var i in files) {
